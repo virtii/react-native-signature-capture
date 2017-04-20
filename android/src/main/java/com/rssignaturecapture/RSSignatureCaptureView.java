@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.MotionEvent;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Canvas;
@@ -46,12 +49,15 @@ public class RSSignatureCaptureView extends View {
 	private Paint mPaint = new Paint();
 	private Path mPath = new Path();
 	private Bitmap mSignatureBitmap = null;
+	private Bitmap initialImage = null;
 
 	private float mVelocityFilterWeight;
 	private Canvas mSignatureBitmapCanvas = null;
 	private SignatureCallback callback;
 	private boolean dragged = false;
 	private int SCROLL_THRESHOLD = 50;
+	private boolean cleared = false;
+	private boolean loadedInitialImage = true;
 
 	public interface SignatureCallback {
 		void onDragged();
@@ -84,6 +90,11 @@ public class RSSignatureCaptureView extends View {
 		// width and height should cover the screen
 		this.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	}
+
+  public void setInitialImage(Bitmap initialImage) {
+	  this.initialImage = initialImage;
+	  this.loadedInitialImage = false;
+  }
 
 	/**
 	* Get signature
@@ -195,6 +206,12 @@ public class RSSignatureCaptureView extends View {
 					Bitmap.Config.ARGB_8888);
 			mSignatureBitmapCanvas = new Canvas(mSignatureBitmap);
 		}
+		if (!this.loadedInitialImage) {
+			Drawable d = new BitmapDrawable(this.initialImage);
+			d.setBounds(0, 0, getWidth(), getHeight());
+			d.draw(mSignatureBitmapCanvas);
+			this.loadedInitialImage = true;
+		}
 	}
 
 	private float strokeWidth(float velocity) {
@@ -280,9 +297,8 @@ public class RSSignatureCaptureView extends View {
 	// all touch events during the drawing
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if (mSignatureBitmap != null) {
-			canvas.drawBitmap(mSignatureBitmap, 0, 0, mPaint);
-		}
+		ensureSignatureBitmap();
+		canvas.drawBitmap(mSignatureBitmap, 0, 0, mPaint);
 	}
 
 
@@ -339,6 +355,7 @@ public class RSSignatureCaptureView extends View {
 		mLastVelocity = 0;
 		mLastWidth = (mMinWidth + mMaxWidth) / 2;
 		mPath.reset();
+		cleared = true;
 
 		if (mSignatureBitmap != null) {
 			mSignatureBitmap = null;

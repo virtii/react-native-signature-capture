@@ -95,9 +95,9 @@ SignatureCapture.propTypes = {
     rotateClockwise: PropTypes.bool,
     square: PropTypes.bool,
     saveImageFileInExtStorage: PropTypes.bool,
+    initialImage: PropTypes.string,
     viewMode: PropTypes.string,
     showNativeButtons: PropTypes.bool,
-    showTitleLabel: PropTypes.bool,
     maxSize:PropTypes.number
 };
 

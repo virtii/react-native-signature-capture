@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import android.util.Base64;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Environment;
@@ -38,7 +39,6 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
   Boolean saveFileInExtStorage = false;
   String viewMode = "portrait";
   Boolean showNativeButtons = true;
-  Boolean showTitleLabel = true;
   int maxSize = 500;
 
   public RSSignatureCaptureMainView(Context context, Activity activity) {
@@ -48,7 +48,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
     mActivity = activity;
 
     this.setOrientation(LinearLayout.VERTICAL);
-    this.signatureView = new RSSignatureCaptureView(context,this);
+    this.signatureView = new RSSignatureCaptureView(context, this);
     // add the buttons and signature views
     this.buttonsLayout = this.buttonsLayout();
     this.addView(this.buttonsLayout);
@@ -60,6 +60,13 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
   public void setSaveFileInExtStorage(Boolean saveFileInExtStorage) {
     this.saveFileInExtStorage = saveFileInExtStorage;
+  }
+
+  public void setInitialImage(String initialImage) {
+    String signatureData = initialImage.substring(initialImage.indexOf(",") + 1);
+    byte[] decodedString = Base64.decode(signatureData, Base64.DEFAULT);
+    Bitmap image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+    this.signatureView.setInitialImage(image);
   }
 
   public void setViewMode(String viewMode) {
